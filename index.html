@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator za sistem zakazivanja</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="root" class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <svg class="icon text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <h1 class="text-3xl font-bold text-gray-800">
+                        Koliko možete uštedeti sa sistemom zakazivanja
+                    </h1>
+                </div>
+                
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6 rounded">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div class="text-sm text-amber-800">
+                            <strong>Napomena:</strong> Ovi izračuni su bazirani na statističkim prosecima. Stvarni rezultati zavise od vaše ordinacije, tipa pacijenata i kvaliteta implementacije sistema.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unos podataka -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Termina dnevno (po doktoru)
+                        </label>
+                        <input
+                            type="number"
+                            id="terminiDnevno"
+                            value="8"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            min="1"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Broj doktora
+                        </label>
+                        <input
+                            type="number"
+                            id="brojDoktora"
+                            value="1"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            min="1"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Prosečna cena usluge (RSD)
+                        </label>
+                        <input
+                            type="number"
+                            id="prosecnaUsluga"
+                            value="1500"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            min="100"
+                            step="100"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Radnih dana mesečno
+                        </label>
+                        <input
+                            type="number"
+                            id="radnihDana"
+                            value="20"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                            min="1"
+                            max="31"
+                        />
+                    </div>
+                </div>
+
+                <!-- Ukupna statistika -->
+                <div class="bg-indigo-50 rounded-xl p-6 mb-8">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="text-center">
+                            <svg class="icon text-indigo-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div id="ukupnoTerminaMesecno" class="text-3xl font-bold text-indigo-600">
+                                160
+                            </div>
+                            <div class="text-sm text-gray-600">termina mesečno trenutno</div>
+                        </div>
+                        <div class="text-center">
+                            <svg class="icon text-green-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                            <div id="potencijalnoTermina" class="text-3xl font-bold text-green-600">
+                                +0 do +0
+                            </div>
+                            <div class="text-sm text-gray-600">dodatnih termina</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detaljni rezultati -->
+                <div class="space-y-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Očekivani povraćaj (Najmanje - Najviše):</h2>
+                    
+                    <!-- SMS podsetnici -->
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border-l-4 border-blue-500">
+                        <div class="mb-3">
+                            <h3 class="text-lg font-bold text-gray-800">📱 SMS podsetnici za zakazane preglede</h3>
+                            <p class="text-sm text-gray-600 mt-1">
+                                5-30% pacijenata ne dođe na termin • SMS smanjuje 20-40% gubitaka
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/60 rounded-lg p-4">
+                                <div class="text-xs text-gray-600 mb-1">NAJMANJE</div>
+                                <div id="smsMinTermina" class="text-xl font-bold text-blue-600">0 termina</div>
+                                <div id="prihodSMSMin" class="text-lg font-semibold text-green-600">0 RSD</div>
+                                <div class="text-xs text-gray-500 mt-1">mesečno</div>
+                            </div>
+                            <div class="bg-white/60 rounded-lg p-4">
+                                <div class="text-xs text-gray-600 mb-1">NAJVIŠE</div>
+                                <div id="smsMaxTermina" class="text-xl font-bold text-blue-600">0 termina</div>
+                                <div id="prihodSMSMax" class="text-lg font-semibold text-green-600">0 RSD</div>
+                                <div class="text-xs text-gray-500 mt-1">mesečno</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bolja organizacija -->
+                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6 border-l-4 border-purple-500">
+                        <div class="mb-3">
+                            <h3 class="text-lg font-bold text-gray-800">📅 Bolja organizacija termina</h3>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Gubici zbog loše organizacije 5-20% • Sistem vraća 25-60% gubitaka
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/60 rounded-lg p-4">
+                                <div class="text-xs text-gray-600 mb-1">NAJMANJE</div>
+                                <div id="orgMinTermina" class="text-xl font-bold text-purple-600">0 termina</div>
+                                <div id="prihodOrgMin" class="text-lg font-semibold text-green-600">0 RSD</div>
+                                <div class="text-xs text-gray-500 mt-1">mesečno</div>
+                            </div>
+                            <div class="bg-white/60 rounded-lg p-4">
+                                <div class="text-xs text-gray-600 mb-1">NAJVIŠE</div>
+                                <div id="orgMaxTermina" class="text-xl font-bold text-purple-600">0 termina</div>
+                                <div id="prihodOrgMax" class="text-lg font-semibold text-green-600">0 RSD</div>
+                                <div class="text-xs text-gray-500 mt-1">mesečno</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Redovne kontrole -->
+                    <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border-l-4 border-green-500">
+                        <div class="mb-3">
+                            <h3 class="text-lg font-bold text-gray-800">🔔 Automatski podsetnici za redovne kontrole</h3>
+                            <p class="text-sm text-gray-600 mt-1">
+                                30-40% se ne javi na kontrolu • SMS vraća 65-85% tih pacijenata
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/60 rounded-lg p-4">
+                                <div class="text-xs text-gray-600 mb-1">NAJMANJE</div>
+                                <div id="kontroleMinTermina" class="text-xl font-bold text-green-600">0 termina</div>
+                                <div id="prihodKontroleMin" class="text-lg font-semibold text-green-600">0 RSD</div>
+                                <div class="text-xs text-gray-500 mt-1">mesečno</div>
+                            </div>
+                            <div class="bg-white/60 rounded-lg p-4">
+                                <div class="text-xs text-gray-600 mb-1">NAJVIŠE</div>
+                                <div id="kontroleMaxTermina" class="text-xl font-bold text-green-600">0 termina</div>
+                                <div id="prihodKontroleMax" class="text-lg font-semibold text-green-600">0 RSD</div>
+                                <div class="text-xs text-gray-500 mt-1">mesečno</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ukupan rezultat -->
+                <div id="ukupanRezultat" class="mt-8 rounded-2xl p-8 text-white bg-gradient-to-r from-indigo-600 to-purple-600">
+                    <h2 class="text-2xl font-bold mb-6 text-center">💰 Ukupan dodatni prihod</h2>
+                    <div class="grid md:grid-cols-2 gap-8 mb-6">
+                        <div class="text-center bg-white/10 rounded-xl p-6">
+                            <div class="text-sm opacity-90 mb-2">NAJMANJE</div>
+                            <div id="minPrihod" class="text-4xl font-bold mb-2">0 RSD</div>
+                            <div id="minPrihodEUR" class="text-xl opacity-90">~0€ mesečno</div>
+                            <div id="minPrihodGodisnje" class="text-sm opacity-75 mt-2">0 RSD godišnje</div>
+                        </div>
+                        <div class="text-center bg-white/10 rounded-xl p-6">
+                            <div class="text-sm opacity-90 mb-2">NAJVIŠE</div>
+                            <div id="maxPrihod" class="text-4xl font-bold mb-2">0 RSD</div>
+                            <div id="maxPrihodEUR" class="text-xl opacity-90">~0€ mesečno</div>
+                            <div id="maxPrihodGodisnje" class="text-sm opacity-75 mt-2">0 RSD godišnje</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preporuka -->
+                <div id="preporuka" class="mt-6 rounded-xl p-6 bg-green-50 border-2 border-green-200">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-green-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                        <div>
+                            <h3 id="preporukaNaslov" class="text-lg font-bold text-green-800 mb-2">✅ Sistem ima smisla za vašu ordinaciju</h3>
+                            <p id="preporukaTekst" class="text-sm text-green-700 mb-3">
+                                Čak i u najgorem slučaju, potencijalni povraćaj (0€/mesečno) premašuje minimalnu preporučenu granicu od 179,8€. 
+                                Sistem je isplativ i može doneti značajno poboljšanje u radu ordinacije.
+                            </p>
+                            <div id="preporukaKalkulacija" class="text-xs text-green-700 bg-green-100 rounded p-3 mt-2">
+                                <div class="font-semibold mb-2">Kalkulacija mesečne cene sistema:</div>
+                                <div class="space-y-1">
+                                    <div>417,6€ - cena sistema</div>
+                                    <div>245€ × 2 = 490€ - održavanje na 6 meseci</div>
+                                    <div>125€ × 10 = 1.250€ - standardna cena održavanja</div>
+                                    <div class="border-t border-green-300 pt-1 mt-1 font-mono">(417,6 + 490 + 1.250) ÷ 12 meseci = <strong>179,8€ mesečno</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 text-center text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
+                    <div class="mb-3"><strong>Kako smo izračunali:</strong></div>
+                    <div class="text-left max-w-3xl mx-auto space-y-2">
+                        <div>
+                            <strong>📱 SMS podsetnici za zakazane preglede:</strong> 5-30% pacijenata ne dođe na zakazan termin. 
+                            SMS podsetnik može da smanji 20-40% od tih gubitaka.
+                        </div>
+                        <div>
+                            <strong>📅 Bolja organizacija termina:</strong> Ordinacije gube 5-20% termina zbog loše organizacije 
+                            (duple rezervacije, greške u raspoređivanju). Sistem može da vrati 25-60% tih gubitaka.
+                        </div>
+                        <div>
+                            <strong>🔔 Podsetnici za redovne kontrole:</strong> 30-40% pacijenata se ne javi na redovnu 6-mesečnu kontrolu. 
+                            SMS podsetnik može da vrati 65-85% od ljudi što ne dolaze redovno na preglede.
+                        </div>
+                        <div class="pt-2 text-xs text-gray-600 border-t border-gray-300 mt-3">
+                            Stvarni rezultati zavise od vaše prakse, tipa pacijenata, kvaliteta implementacije i mnogih drugih faktora. 
+                            Koristite ovaj kalkulator kao vodič, ne kao garanciju.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num) {
+            return num.toLocaleString('sr-RS');
+        }
+
+        function calculate() {
+            const terminiDnevno = Number(document.getElementById('terminiDnevno').value) || 8;
+            const brojDoktora = Number(document.getElementById('brojDoktora').value) || 1;
+            const prosecnaUsluga = Number(document.getElementById('prosecnaUsluga').value) || 1500;
+            const radnihDana = Number(document.getElementById('radnihDana').value) || 20;
+            
+            const ukupnoTerminaMesecno = terminiDnevno * brojDoktora * radnihDana;
+            
+            // SMS podsetnici
+            const noShowMin = 0.05;
+            const noShowMax = 0.30;
+            const smsMin = Math.round(ukupnoTerminaMesecno * noShowMin * 0.20);
+            const smsMax = Math.round(ukupnoTerminaMesecno * noShowMax * 0.40);
+            const prihodSMSMin = smsMin * prosecnaUsluga;
+            const prihodSMSMax = smsMax * prosecnaUsluga;
+            
+            // Organizacija
+            const orgGubiciMin = 0.05;
+            const orgGubiciMax = 0.20;
+            const orgMin = Math.round(ukupnoTerminaMesecno * orgGubiciMin * 0.25);
+            const orgMax = Math.round(ukupnoTerminaMesecno * orgGubiciMax * 0.60);
+            const prihodOrgMin = orgMin * prosecnaUsluga;
+            const prihodOrgMax = orgMax * prosecnaUsluga;
+            
+            // Redovne kontrole
+            const bezKontroleMin = 0.30;
+            const bezKontroleMax = 0.40;
+            const kontroleMin = Math.round(ukupnoTerminaMesecno * bezKontroleMin * 0.65);
+            const kontroleMax = Math.round(ukupnoTerminaMesecno * bezKontroleMax * 0.85);
+            const prihodKontroleMin = kontroleMin * prosecnaUsluga;
+            const prihodKontroleMax = kontroleMax * prosecnaUsluga;
+            
+            // Ukupno
+            const minTermini = smsMin + orgMin + kontroleMin;
+            const maxTermini = smsMax + orgMax + kontroleMax;
+            const minPrihod = prihodSMSMin + prihodOrgMin + prihodKontroleMin;
+            const maxPrihod = prihodSMSMax + prihodOrgMax + prihodKontroleMax;
+            
+            // Statički izračun granice: (417,6+245*2+125*10)/12 = 179,8€ mesečno
+            const granicaEUR = (417.6 + 245 * 2 + 125 * 10) / 12; // 179,8€
+            const granicaRSD = granicaEUR * 120; // ~20326 RSD
+            const minImaSmisla = minPrihod >= granicaRSD;
+            const minPrihodEUR = Math.round(minPrihod / 120);
+            const maxPrihodEUR = Math.round(maxPrihod / 120);
+
+            // Update UI
+            document.getElementById('ukupnoTerminaMesecno').textContent = ukupnoTerminaMesecno;
+            document.getElementById('potencijalnoTermina').textContent = `+${minTermini} do +${maxTermini}`;
+            
+            document.getElementById('smsMinTermina').textContent = `${smsMin} termina`;
+            document.getElementById('prihodSMSMin').textContent = `${formatNumber(prihodSMSMin)} RSD`;
+            document.getElementById('smsMaxTermina').textContent = `${smsMax} termina`;
+            document.getElementById('prihodSMSMax').textContent = `${formatNumber(prihodSMSMax)} RSD`;
+            
+            document.getElementById('orgMinTermina').textContent = `${orgMin} termina`;
+            document.getElementById('prihodOrgMin').textContent = `${formatNumber(prihodOrgMin)} RSD`;
+            document.getElementById('orgMaxTermina').textContent = `${orgMax} termina`;
+            document.getElementById('prihodOrgMax').textContent = `${formatNumber(prihodOrgMax)} RSD`;
+            
+            document.getElementById('kontroleMinTermina').textContent = `${kontroleMin} termina`;
+            document.getElementById('prihodKontroleMin').textContent = `${formatNumber(prihodKontroleMin)} RSD`;
+            document.getElementById('kontroleMaxTermina').textContent = `${kontroleMax} termina`;
+            document.getElementById('prihodKontroleMax').textContent = `${formatNumber(prihodKontroleMax)} RSD`;
+            
+            document.getElementById('minPrihod').textContent = `${formatNumber(minPrihod)} RSD`;
+            document.getElementById('minPrihodEUR').textContent = `~${minPrihodEUR}€ mesečno`;
+            document.getElementById('minPrihodGodisnje').textContent = `${formatNumber(minPrihod * 12)} RSD godišnje`;
+            
+            document.getElementById('maxPrihod').textContent = `${formatNumber(maxPrihod)} RSD`;
+            document.getElementById('maxPrihodEUR').textContent = `~${maxPrihodEUR}€ mesečno`;
+            document.getElementById('maxPrihodGodisnje').textContent = `${formatNumber(maxPrihod * 12)} RSD godišnje`;
+            
+            // Update preporuka
+            const preporukaDiv = document.getElementById('preporuka');
+            const preporukaNaslov = document.getElementById('preporukaNaslov');
+            const preporukaTekst = document.getElementById('preporukaTekst');
+            const ukupanRezultat = document.getElementById('ukupanRezultat');
+            
+            if (minImaSmisla) {
+                preporukaDiv.className = 'mt-6 rounded-xl p-6 bg-green-50 border-2 border-green-200';
+                ukupanRezultat.className = 'mt-8 rounded-2xl p-8 text-white bg-gradient-to-r from-indigo-600 to-purple-600';
+                preporukaNaslov.className = 'text-lg font-bold text-green-800 mb-2';
+                preporukaNaslov.textContent = '✅ Sistem ima smisla za vašu ordinaciju';
+                preporukaTekst.className = 'text-sm text-green-700 mb-3';
+                preporukaTekst.textContent = `Čak i u najgorem slučaju, potencijalni povraćaj (${minPrihodEUR}€/mesečno) premašuje minimalnu preporučenu granicu od ${granicaEUR.toFixed(1)}€. Sistem je isplativ i može doneti značajno poboljšanje u radu ordinacije.`;
+                
+                // Prikaži kalkulaciju
+                const preporukaKalkulacija = document.getElementById('preporukaKalkulacija');
+                if (preporukaKalkulacija) {
+                    preporukaKalkulacija.innerHTML = `
+                        <div class="font-semibold mb-2">Kalkulacija mesečne cene sistema:</div>
+                        <div class="space-y-1">
+                            <div>417,6€ - cena sistema</div>
+                            <div>245€ × 2 = 490€ - održavanje na 6 meseci</div>
+                            <div>125€ × 10 = 1.250€ - standardna cena održavanja</div>
+                            <div class="border-t border-green-300 pt-1 mt-1 font-mono">(417,6 + 490 + 1.250) ÷ 12 meseci = <strong>${granicaEUR.toFixed(1)}€ mesečno</strong></div>
+                        </div>
+                    `;
+                    preporukaKalkulacija.style.display = 'block';
+                }
+            } else {
+                preporukaDiv.className = 'mt-6 rounded-xl p-6 bg-red-50 border-2 border-red-200';
+                ukupanRezultat.className = 'mt-8 rounded-2xl p-8 text-white bg-gradient-to-r from-gray-600 to-gray-700';
+                preporukaNaslov.className = 'text-lg font-bold text-red-800 mb-2';
+                preporukaNaslov.textContent = '⚠️ Sistem možda nije isplativ za vašu ordinaciju';
+                preporukaTekst.className = 'text-sm text-red-700';
+                preporukaTekst.textContent = `Minimalni projektovani povraćaj (${minPrihodEUR}€/mesečno) je ispod preporučene granice od ${granicaEUR.toFixed(1)}€. Razmislite o povećanju broja termina, cene usluga, ili sačekajte dok ordinacija ne poraste. Sistem je najisplativiji za ordinacije sa većim prometom.`;
+                
+                // Sakrij kalkulaciju za negativan slučaj
+                const preporukaKalkulacija = document.getElementById('preporukaKalkulacija');
+                if (preporukaKalkulacija) {
+                    preporukaKalkulacija.style.display = 'none';
+                }
+            }
+        }
+
+        // Add event listeners
+        document.getElementById('terminiDnevno').addEventListener('input', calculate);
+        document.getElementById('brojDoktora').addEventListener('input', calculate);
+        document.getElementById('prosecnaUsluga').addEventListener('input', calculate);
+        document.getElementById('radnihDana').addEventListener('input', calculate);
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
