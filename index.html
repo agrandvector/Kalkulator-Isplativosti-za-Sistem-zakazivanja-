@@ -174,7 +174,7 @@
                         <div class="mb-3">
                             <h3 class="text-lg font-bold text-gray-800">🔔 Automatski podsetnici za redovne kontrole</h3>
                             <p class="text-sm text-gray-600 mt-1">
-                                30-40% se ne javi na kontrolu • SMS vraća 65-85% tih pacijenata
+                                30-40% se ne javi na kontrolu • SMS vraća 65-85% tih pacijenata • Kontrole su na 6 meseci
                             </p>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
@@ -251,7 +251,8 @@
                         </div>
                         <div>
                             <strong>🔔 Podsetnici za redovne kontrole:</strong> 30-40% pacijenata se ne javi na redovnu 6-mesečnu kontrolu. 
-                            SMS podsetnik može da vrati 65-85% od ljudi što ne dolaze redovno na preglede.
+                            SMS podsetnik može da vrati 65-85% od ljudi što ne dolaze redovno na preglede. 
+                            Izračun je podeljen sa 6 jer su kontrole na 6 meseci (mesečni prosek).
                         </div>
                         <div class="pt-2 text-xs text-gray-600 border-t border-gray-300 mt-3">
                             Stvarni rezultati zavise od vaše prakse, tipa pacijenata, kvaliteta implementacije i mnogih drugih faktora. 
@@ -292,11 +293,11 @@
             const prihodOrgMin = orgMin * prosecnaUsluga;
             const prihodOrgMax = orgMax * prosecnaUsluga;
             
-            // Redovne kontrole
+            // Redovne kontrole - kontrole su na 6 meseci, pa delimo sa 6 za mesečni prosek
             const bezKontroleMin = 0.30;
             const bezKontroleMax = 0.40;
-            const kontroleMin = Math.round(ukupnoTerminaMesecno * bezKontroleMin * 0.65);
-            const kontroleMax = Math.round(ukupnoTerminaMesecno * bezKontroleMax * 0.85);
+            const kontroleMin = Math.round((ukupnoTerminaMesecno * bezKontroleMin * 0.65) / 6);
+            const kontroleMax = Math.round((ukupnoTerminaMesecno * bezKontroleMax * 0.85) / 6);
             const prihodKontroleMin = kontroleMin * prosecnaUsluga;
             const prihodKontroleMax = kontroleMax * prosecnaUsluga;
             
